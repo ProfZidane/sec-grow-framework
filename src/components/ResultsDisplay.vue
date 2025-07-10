@@ -194,6 +194,12 @@
         </div>
       </div>
 
+      <!-- OKRs Sécuritaires Générés -->;
+      <OkrsDisplay 
+        :okrs="generatedOKRs"
+        :technical-measures="technicalMeasures"
+      />;
+
       <!-- Actions -->
       <div class="actions">
         <button @click="exportResults" class="action-btn primary">
@@ -214,10 +220,16 @@
 </template>
 
 <script>
-import { MATURITY_LEVELS } from '@/data/questions'
+import { MATURITY_LEVELS } from '@/data/questions';
+import { OKRGenerator } from '@/utils/okrGenerator'
+import OkrsDisplay from './OkrsDisplay.vue';
 
 export default {
   name: 'ResultsDisplay',
+  
+  components: {
+    OkrsDisplay
+  },
   
   props: {
     selectedEvaluator: {
@@ -305,6 +317,15 @@ export default {
       }
       
       return recs.slice(0, 3)
+    },
+    generatedOKRs() {
+      const generator = new OKRGenerator(this.responses, this.sections, this.selectedEvaluator)
+      return generator.generateOKRs()
+    },
+    
+    technicalMeasures() {
+      const generator = new OKRGenerator(this.responses, this.sections, this.selectedEvaluator)
+      return generator.generateTechnicalMeasures()
     }
   },
   
@@ -400,6 +421,8 @@ export default {
           weaknesses: this.getWeaknesses(),
           recommendations: this.koalooRecommendations
         },
+        okrs: this.generatedOKRs,
+        technicalMeasures: this.technicalMeasures,
         responses: this.responses
       }
       
