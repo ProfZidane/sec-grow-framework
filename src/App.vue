@@ -27,7 +27,7 @@
         <DiagnosticInterface
           v-else-if="!showResults"
           :selected-evaluator="selectedEvaluator"
-          :current-section="currentSection"
+          :currentSection="currentSection"
           :responses="responses"
           :sections="sections"
           @section-changed="currentSection = $event"
@@ -51,123 +51,105 @@
   </div>
 </template>
 
-<script>
-import { SECTIONS } from '@/data/questions'
-import AppHeader from '@/components/AppHeader.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
-import EvaluatorSelector from '@/components/EvaluatorSelector.vue'
-import DiagnosticInterface from '@/components/DiagnosticInterface.vue'
-import ResultsDisplay from '@/components/ResultsDisplay.vue'
+<script setup>
+  import { SECTIONS } from '@/data/questions'
+  import AppHeader from '@/components/AppHeader.vue'
+  import ProgressBar from '@/components/ProgressBar.vue'
+  import EvaluatorSelector from '@/components/EvaluatorSelector.vue'
+  import DiagnosticInterface from '@/components/DiagnosticInterface.vue'
+  import ResultsDisplay from '@/components/ResultsDisplay.vue'
+  import { computed, onMounted, ref } from 'vue'
 
-export default {
-  name: 'SecGrowApp',
-  
-  components: {
-    AppHeader,
-    ProgressBar,
-    EvaluatorSelector,
-    DiagnosticInterface,
-    ResultsDisplay
-  },
-  
-  data() {
-    return {
-      sections: SECTIONS,
-      selectedEvaluator: null,
-      currentSection: 0,
-      responses: {},
-      showResults: false,
-      sessionId: null,
-      startTime: null
+  const sections = SECTIONS;
+  const selectedEvaluator = ref(null);
+  const currentSection = ref(0)
+  const responses = ref({})
+  const showResults = ref(false)
+  const sessionId = ref(null)
+  const startTime = ref(null)
+
+
+  const answeredQuestions = computed(() => {
+    return Object.keys(responses.value).length
+  });
+    
+  const totalQuestions = computed(() => {
+    return sections.reduce((total, section) => total + section.questions.length, 0)
+  })
+    
+  const progressPercent = computed(() => {
+    return (answeredQuestions.value / totalQuestions.value) * 100
+  });
+
+  const selectEvaluator = (role) => {
+    selectedEvaluator.value = role
+    sessionId.value = 'sec-grow-' + Date.now()
+    startTime.value = new Date().toISOString()
+    loadFromStorage()
+  }
+
+  const resetEvaluator = () => {
+    if (confirm('Êtes-vous sûr de vouloir changer d\'évaluateur ? Les données seront sauvegardées.')) {
+      saveToStorage()
+      selectedEvaluator.value = null
+      showResults.value = false
     }
-  },
-  
-  computed: {
-    answeredQuestions() {
-      return Object.keys(this.responses).length
-    },
+  }
     
-    totalQuestions() {
-      return this.sections.reduce((total, section) => total + section.questions.length, 0)
-    },
-    
-    progressPercent() {
-      return (this.answeredQuestions / this.totalQuestions) * 100
+  const handleResponseChange = (questionId, value) => {
+    responses.value[questionId] = value
+    saveToStorage()
+  }
+
+  const restart = () => {
+    if (confirm('Êtes-vous sûr de vouloir recommencer complètement ?')) {
+      selectedEvaluator.value = null
+      currentSection.value = 0
+      responses.value = {}
+      showResults.value = false
+      localStorage.removeItem('sec-grow-koaloo')
     }
-  },
-  
-  methods: {
-    selectEvaluator(role) {
-      this.selectedEvaluator = role
-      this.sessionId = 'sec-grow-' + Date.now()
-      this.startTime = new Date().toISOString()
-      this.loadFromStorage()
-    },
-    
-    resetEvaluator() {
-      if (confirm('Êtes-vous sûr de vouloir changer d\'évaluateur ? Les données seront sauvegardées.')) {
-        this.saveToStorage()
-        this.selectedEvaluator = null
-        this.showResults = false
-      }
-    },
-    
-    handleResponseChange(questionId, value) {
-      this.responses[questionId] = value
-      this.saveToStorage()
-    },
-    
-    restart() {
-      if (confirm('Êtes-vous sûr de vouloir recommencer complètement ?')) {
-        this.selectedEvaluator = null
-        this.currentSection = 0
-        this.responses = {}
-        this.showResults = false
-        localStorage.removeItem('sec-grow-koaloo')
-      }
-    },
-    
-    saveToStorage() {
-      const data = {
-        selectedEvaluator: this.selectedEvaluator,
-        currentSection: this.currentSection,
-        responses: this.responses,
-        sessionId: this.sessionId,
-        startTime: this.startTime
-      }
-      localStorage.setItem('sec-grow-koaloo', JSON.stringify(data))
-    },
-    
-    loadFromStorage() {
-      const saved = localStorage.getItem('sec-grow-koaloo')
-      if (saved) {
-        try {
-          const data = JSON.parse(saved)
-          this.responses = data.responses || {}
-          this.currentSection = data.currentSection || 0
-        } catch (error) {
-          console.error('Erreur chargement:', error)
-        }
+  }
+
+  const saveToStorage = () => {
+    const data = {
+      selectedEvaluator: selectedEvaluator.value,
+      currentSection: currentSection.value,
+      responses: responses.value,
+      sessionId: sessionId.value,
+      startTime: startTime.value
+    }
+    localStorage.setItem('sec-grow-koaloo', JSON.stringify(data))
+  }
+
+  const loadFromStorage = () => {
+    const saved = localStorage.getItem('sec-grow-koaloo')
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        responses.value = data.responses || {}
+        currentSection.value = data.currentSection || 0
+      } catch (error) {
+        console.error('Erreur chargement:', error)
       }
     }
-  },
-  
-  mounted() {
+  }
+
+  onMounted(() => {
     // Auto-chargement si session en cours
     const saved = localStorage.getItem('sec-grow-koaloo')
     if (saved) {
       try {
         const data = JSON.parse(saved)
         if (data.selectedEvaluator) {
-          this.selectedEvaluator = data.selectedEvaluator
-          this.loadFromStorage()
+          selectedEvaluator.value = data.selectedEvaluator
+          loadFromStorage()
         }
       } catch (error) {
         console.error('Erreur auto-chargement:', error)
       }
     }
-  }
-}
+  });
 </script>
 
 <style>

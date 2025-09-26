@@ -4,9 +4,9 @@
     <!-- Navigation des sections -->
     <div class="sections-nav">
       <div class="nav-header">
-        <h3>📋 Sections</h3>
+        <h3>Sections</h3>
         <button @click="$emit('reset-evaluator')" class="change-evaluator-btn">
-          🔄 Changer d'évaluateur
+          Changer d'évaluateur
         </button>
       </div>
       
@@ -17,7 +17,7 @@
           @click="$emit('section-changed', index)"
           :class="['section-btn', { active: currentSection === index }]"
         >
-          <span class="section-icon">{{ section.icon }}</span>
+          <!-- <span class="section-icon">{{ section.icon }}</span> -->
           <div class="section-info">
             <div class="section-title">{{ section.title }}</div>
             <div class="section-score">{{ getSectionScore(index) }}/20</div>
@@ -41,7 +41,7 @@
 
       <!-- Contexte KOALOO -->
       <div class="koaloo-context">
-        <h4>🏢 Contexte KOALOO</h4>
+        <h4>Contexte KOALOO</h4>
         <div class="context-details">
           <div><strong>Secteur:</strong> Fintech ESG</div>
           <div><strong>Mission:</strong> Améliorer score ESG des corporates</div>
@@ -55,7 +55,6 @@
     <div class="questions-container">
       <div class="section-header">
         <h2>
-          {{ sections[currentSection].icon }} 
           {{ sections[currentSection].title }}
         </h2>
         <div class="section-meta">
@@ -76,7 +75,8 @@
           <div class="question-content">
             <h3>{{ question.text }}</h3>
             <div class="question-help">
-              💡 {{ question.help }}
+              <i class="material-icons text-light" style="transform: translateY(4px); font-size: 1.1rem;">info</i> 
+              {{ question.help }}
             </div>
             
             <div class="options">
@@ -137,20 +137,18 @@
           class="nav-btn success"
           :class="{ pulse: isComplete }"
         >
-          Voir les résultats 📊
+          Voir les résultats
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { MATURITY_LEVELS } from '@/data/questions'
+import { computed, onMounted } from 'vue'
 
-export default {
-  name: 'DiagnosticInterface',
-  
-  props: {
+const props = defineProps({
     selectedEvaluator: {
       type: Object,
       required: true
@@ -167,80 +165,75 @@ export default {
       type: Array,
       required: true
     }
-  },
-  
-  emits: ['section-changed', 'response-changed', 'show-results', 'reset-evaluator'],
-  
-  data() {
-    return {
-      maturityLevels: MATURITY_LEVELS
+});
+
+defineEmits(['section-changed', 'response-changed', 'show-results', 'reset-evaluator']);
+
+const maturityLevels = MATURITY_LEVELS;
+
+const isComplete = computed(() => {
+  return getTotalAnswered() === 20
+});
+
+const handleResponseChange = (questionId, value) => {
+  this.$emit('response-changed', questionId, value)
+}
+
+const getSectionScore = (sectionIndex) => {
+  const section = props.sections[sectionIndex]
+  let score = 0
+  section.questions.forEach(question => {
+  if (props.responses[question.id] !== undefined) {
+      score += props.responses[question.id]
     }
-  },
-  
-  computed: {
-    isComplete() {
-      return this.getTotalAnswered() === 20
-    }
-  },
-  
-  methods: {
-    handleResponseChange(questionId, value) {
-      this.$emit('response-changed', questionId, value)
-    },
+  })
+  return score
+}
+
+const getSectionMaturity = (sectionIndex) => {
+  const score = getSectionScore(sectionIndex)
+  if (score <= 4) return maturityLevels[0]
+  if (score <= 9) return maturityLevels[1]
+  if (score <= 14) return maturityLevels[2]
+  if (score <= 17) return maturityLevels[3]
+  return maturityLevels[4]
+}
+
+const getSectionProgress = (sectionIndex) => {
+  const section = props.sections[sectionIndex]
+  const answered = section.questions.filter(q => props.responses[q.id] !== undefined).length
+  return Math.round((answered / section.questions.length) * 100)
+}
+
+const getSectionAnswered = (sectionIndex) => {
+  const section = props.sections[sectionIndex]
+  return section.questions.filter(q => props.responses[q.id] !== undefined).length
+}
+
+const getTotalAnswered = () => {
+  return Object.keys(props.responses).length
+}
     
-    getSectionScore(sectionIndex) {
-      const section = this.sections[sectionIndex]
-      let score = 0
-      section.questions.forEach(question => {
-        if (this.responses[question.id] !== undefined) {
-          score += this.responses[question.id]
-        }
-      })
-      return score
-    },
-    
-    getSectionMaturity(sectionIndex) {
-      const score = this.getSectionScore(sectionIndex)
-      if (score <= 4) return this.maturityLevels[0]
-      if (score <= 9) return this.maturityLevels[1]
-      if (score <= 14) return this.maturityLevels[2]
-      if (score <= 17) return this.maturityLevels[3]
-      return this.maturityLevels[4]
-    },
-    
-    getSectionProgress(sectionIndex) {
-      const section = this.sections[sectionIndex]
-      const answered = section.questions.filter(q => this.responses[q.id] !== undefined).length
-      return Math.round((answered / section.questions.length) * 100)
-    },
-    
-    getSectionAnswered(sectionIndex) {
-      const section = this.sections[sectionIndex]
-      return section.questions.filter(q => this.responses[q.id] !== undefined).length
-    },
-    
-    getTotalAnswered() {
-      return Object.keys(this.responses).length
-    },
-    
-    getMaturityLabel(optionIndex) {
-      const labels = ['Ad Hoc', 'Bronze', 'Silver', 'Gold', 'Platinum']
-      return labels[optionIndex] || 'N/A'
-    },
-    
-    nextSection() {
-      if (this.currentSection < this.sections.length - 1) {
-        this.$emit('section-changed', this.currentSection + 1)
-      }
-    },
-    
-    previousSection() {
-      if (this.currentSection > 0) {
-        this.$emit('section-changed', this.currentSection - 1)
-      }
-    }
+const getMaturityLabel = (optionIndex) => {
+  const labels = ['Ad Hoc', 'Bronze', 'Silver', 'Gold', 'Platinum']
+  return labels[optionIndex] || 'N/A'
+}
+
+const nextSection = () => {
+    if (props.currentSection < props.sections.length - 1) {
+    $emit('section-changed', props.currentSection + 1)
   }
 }
+
+const previousSection = () => {
+  if (props.currentSection > 0) {
+    $emit('section-changed', props.currentSection - 1)
+  }
+}
+
+onMounted(() => {
+})
+
 </script>
 
 <style scoped>

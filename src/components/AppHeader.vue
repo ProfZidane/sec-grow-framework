@@ -3,7 +3,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <span class="shield">🛡️</span>
+          <!-- <span class="shield">🛡️</span> -->
           <div>
             <h1>SEC-GROW Diagnostic</h1>
             <p>KOALOO - Fintech ESG</p>
@@ -12,10 +12,10 @@
         
         <div class="evaluator-info" v-if="selectedEvaluator">
           <div class="evaluator">
-            {{ selectedEvaluator.emoji }} {{ selectedEvaluator.name }}
+            {{ selectedEvaluator.name }}
           </div>
           <button @click="$emit('reset-evaluator')" class="change-evaluator">
-            🔄 Changer
+            Changer
           </button>
         </div>
       </div>
@@ -23,22 +23,21 @@
   </header>
 </template>
 
-<script>
-export default {
-  name: 'AppHeader',
-  props: {
-    selectedEvaluator: {
-      type: Object,
-      default: null
-    }
-  },
-  emits: ['reset-evaluator']
-}
+<script setup>
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps({
+  selectedEvaluator: {
+    type: Object,
+    default: null
+  }
+})
+defineEmits(['reset-evaluator'])
 </script>
 
 <style scoped>
 .header {
-  background: linear-gradient(135deg, var(--primary), var(--purple));
+  background: oklch(60% 0.118 184.704);
   color: white;
   padding: 1rem 0;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -71,7 +70,7 @@ export default {
 }
 
 .evaluator-info {
-  text-align: right;
+  text-align: center;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
