@@ -15,24 +15,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ProgressBar',
-  props: {
-    answered: {
-      type: Number,
-      required: true
-    },
-    total: {
-      type: Number,
-      required: true
-    },
-    progress: {
-      type: Number,
-      required: true
-    }
+<script setup>
+defineProps({
+  answered: {
+    type: Number,
+    required: true
+  },
+  total: {
+    type: Number,
+    required: true
+  },
+  progress: {
+    type: Number,
+    required: true
   }
-}
+})
 </script>
 
 <style scoped>

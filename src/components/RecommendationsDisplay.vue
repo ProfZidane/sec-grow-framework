@@ -110,101 +110,92 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'RecommendationsDisplay',
-  
-  props: {
-    recommendations: {
-      type: Array,
-      default: () => []
-    },
-    maturityLevel: {
-      type: Object,
-      default: null
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    error: {
-      type: String,
-      default: null
-    }
+<script setup>
+import { ref, computed } from 'vue'
+
+const props = defineProps({
+  recommendations: {
+    type: Array,
+    default: () => []
   },
-  
-  emits: ['retry', 'refresh', 'mark-implemented', 'export'],
-  
-  data() {
-    return {
-      implementedItems: new Set(),
-      pillarNames: {
-        governance: 'Gouvernance',
-        technical: 'Technique',
-        processes: 'Processus',
-        culture: 'Culture'
-      },
-      pillarColors: {
-        governance: '#3B82F6',
-        technical: '#10B981',
-        processes: '#8B5CF6',
-        culture: '#F59E0B'
-      }
-    }
+  maturityLevel: {
+    type: Object,
+    default: null
   },
-  
-  computed: {
-    sortedRecommendations() {
-      return [...this.recommendations]
-        .map((rec, index) => ({
-          ...rec,
-          implemented: this.implementedItems.has(index)
-        }))
-        .sort((a, b) => a.priority - b.priority)
-    },
-    
-    highPriorityCount() {
-      return this.recommendations.filter(rec => rec.priority === 1).length
-    }
+  loading: {
+    type: Boolean,
+    default: false
   },
-  
-  methods: {
-    getPriorityIcon(priority) {
-      const icons = { 1: '🔥', 2: '⚡', 3: '💡' }
-      return icons[priority] || '📌'
-    },
-    
-    getPillarName(pillar) {
-      return this.pillarNames[pillar] || pillar
-    },
-    
-    getPillarColor(pillar) {
-      return this.pillarColors[pillar] || '#6B7280'
-    },
-    
-    getImpactLabel(impact) {
-      const labels = {
-        low: 'Faible',
-        medium: 'Moyen',
-        high: 'Élevé'
-      }
-      return labels[impact] || impact
-    },
-    
-    markAsImplemented(index) {
-      this.implementedItems.add(index)
-      this.$emit('mark-implemented', index)
-    },
-    
-    getMoreDetails(recommendation) {
-      // Open modal or navigate to detailed view
-      alert(`Détails pour: ${recommendation.title}\n\n${recommendation.description}`)
-    },
-    
-    exportRecommendations() {
-      this.$emit('export', this.recommendations)
-    }
+  error: {
+    type: String,
+    default: null
   }
+})
+
+const emit = defineEmits(['retry', 'refresh', 'mark-implemented', 'export'])
+
+const implementedItems = ref(new Set())
+
+const pillarNames = {
+  governance: 'Gouvernance',
+  technical: 'Technique',
+  processes: 'Processus',
+  culture: 'Culture'
+}
+
+const pillarColors = {
+  governance: '#3B82F6',
+  technical: '#10B981',
+  processes: '#8B5CF6',
+  culture: '#F59E0B'
+}
+
+const sortedRecommendations = computed(() => {
+  return [...props.recommendations]
+    .map((rec, index) => ({
+      ...rec,
+      implemented: implementedItems.value.has(index)
+    }))
+    .sort((a, b) => a.priority - b.priority)
+})
+
+const highPriorityCount = computed(() => {
+  return props.recommendations.filter(rec => rec.priority === 1).length
+})
+
+const getPriorityIcon = (priority) => {
+  const icons = { 1: '🔥', 2: '⚡', 3: '💡' }
+  return icons[priority] || '📌'
+}
+
+const getPillarName = (pillar) => {
+  return pillarNames[pillar] || pillar
+}
+
+const getPillarColor = (pillar) => {
+  return pillarColors[pillar] || '#6B7280'
+}
+
+const getImpactLabel = (impact) => {
+  const labels = {
+    low: 'Faible',
+    medium: 'Moyen',
+    high: 'Élevé'
+  }
+  return labels[impact] || impact
+}
+
+const markAsImplemented = (index) => {
+  implementedItems.value.add(index)
+  emit('mark-implemented', index)
+}
+
+const getMoreDetails = (recommendation) => {
+  alert(`Détails pour: ${recommendation.title}\n\n${recommendation.description}`)
+}
+
+const exportRecommendations = () => {
+  emit('export', props.recommendations)
 }
 </script>
 

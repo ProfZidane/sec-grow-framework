@@ -39,14 +39,14 @@
         </button>
       </div>
 
-      <!-- Contexte KOALOO -->
+      <!-- Contexte dynamique -->
       <div class="koaloo-context">
-        <h4>Contexte KOALOO</h4>
+        <h4>Contexte {{ contextStore.companyName }}</h4>
         <div class="context-details">
-          <div><strong>Secteur:</strong> Fintech ESG</div>
-          <div><strong>Mission:</strong> Améliorer score ESG des corporates</div>
-          <div><strong>Équipe:</strong> 4 ops + 5 board</div>
-          <div><strong>SaaS:</strong> Tracking KPIs ESG</div>
+          <div><strong>Secteur:</strong> {{ contextStore.sector }}</div>
+          <div><strong>Mission:</strong> {{ contextStore.mission }}</div>
+          <div><strong>Équipe:</strong> {{ contextStore.teamDescription }}</div>
+          <div><strong>Produit:</strong> {{ contextStore.productType }}</div>
         </div>
       </div>
     </div>
@@ -146,6 +146,7 @@
 
 <script setup>
 import { MATURITY_LEVELS } from '@/data/questions'
+import { useContextStore } from '@/stores/context'
 import { computed, onMounted } from 'vue'
 
 const props = defineProps({
@@ -170,6 +171,7 @@ const props = defineProps({
 defineEmits(['section-changed', 'response-changed', 'show-results', 'reset-evaluator']);
 
 const maturityLevels = MATURITY_LEVELS;
+const contextStore = useContextStore();
 
 const isComplete = computed(() => {
   return getTotalAnswered() === 20

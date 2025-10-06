@@ -4,6 +4,7 @@
     <AppHeader 
       :selected-evaluator="selectedEvaluator"
       @reset-evaluator="resetEvaluator"
+      @open-settings="showSettingsModal = true"
     />
 
     <!-- Progress Bar -->
@@ -32,7 +33,7 @@
           :sections="sections"
           @section-changed="currentSection = $event"
           @response-changed="handleResponseChange"
-          @show-results="showResults = true"
+          @show-results="handleShowResults"
           @reset-evaluator="resetEvaluator"
         />
 
@@ -48,6 +49,14 @@
 
       </div>
     </main>
+
+    <!-- Modal de configuration -->
+    <ContextSettingsModal
+      :show="showSettingsModal"
+      :initial-data="contextStore"
+      @close="showSettingsModal = false"
+      @save="saveContextSettings"
+    />
   </div>
 </template>
 
@@ -58,7 +67,9 @@
   import EvaluatorSelector from '@/components/EvaluatorSelector.vue'
   import DiagnosticInterface from '@/components/DiagnosticInterface.vue'
   import ResultsDisplay from '@/components/ResultsDisplay.vue'
-  import { computed, onMounted, ref } from 'vue'
+  import ContextSettingsModal from '@/components/ContextSettingsModal.vue'
+  import { useContextStore } from '@/stores/context'
+  import { computed, onMounted, ref, watch } from 'vue'
 
   const sections = SECTIONS;
   const selectedEvaluator = ref(null);
@@ -67,6 +78,8 @@
   const showResults = ref(false)
   const sessionId = ref(null)
   const startTime = ref(null)
+  const showSettingsModal = ref(false)
+  const contextStore = useContextStore()
 
 
   const answeredQuestions = computed(() => {
@@ -135,6 +148,29 @@
     }
   }
 
+  const saveContextSettings = (newContextData) => {
+    contextStore.updateContext(newContextData);
+    showSettingsModal.value = false;
+  }
+
+  const handleShowResults = () => {
+    console.log('=== DIAGNOSTIC TERMINÉ ===');
+    console.log('Réponses:', responses.value);
+    console.log('Contexte:', {
+      companyName: contextStore.companyName,
+      sector: contextStore.sector,
+      mission: contextStore.mission,
+      teamSize: contextStore.teamSize,
+      boardSize: contextStore.boardSize,
+      roles: contextStore.roles,
+      productType: contextStore.productType,
+      mainFeatures: contextStore.mainFeatures,
+      dataTypes: contextStore.dataTypes
+    });
+    console.log('Évaluateur:', selectedEvaluator.value);
+    showResults.value = true;
+  }
+
   onMounted(() => {
     // Auto-chargement si session en cours
     const saved = localStorage.getItem('sec-grow-koaloo')
@@ -149,13 +185,17 @@
         console.error('Erreur auto-chargement:', error)
       }
     }
+    
+    // Charger le contexte sauvegardé
+    contextStore.loadFromStorage()
   });
+
 </script>
 
 <style>
 /* Variables CSS */
 :root {
-  --primary: #3B82F6;
+  --primary: oklch(60% 0.118 184.704);
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;

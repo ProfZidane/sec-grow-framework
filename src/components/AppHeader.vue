@@ -6,25 +6,31 @@
           <!-- <span class="shield">🛡️</span> -->
           <div>
             <h1>SEC-GROW Diagnostic</h1>
-            <p>KOALOO - Fintech ESG</p>
+            <p>{{ contextStore.companyFullName }}</p>
           </div>
         </div>
         
-        <div class="evaluator-info" v-if="selectedEvaluator">
-          <div class="evaluator">
-            {{ selectedEvaluator.name }}
-          </div>
-          <button @click="$emit('reset-evaluator')" class="change-evaluator">
-            Changer
+        <div class="header-actions">
+          <button @click="$emit('open-settings')" class="settings-btn">
+            <i class="material-icons">settings</i>
           </button>
-        </div>
+          
+          <div class="evaluator-info" v-if="selectedEvaluator">
+            <div class="evaluator">
+              {{ selectedEvaluator.name }}
+            </div>
+            <button @click="$emit('reset-evaluator')" class="change-evaluator">
+              Changer
+            </button>
+          </div>
+        </div>        
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { useContextStore } from '@/stores/context'
 
 const props = defineProps({
   selectedEvaluator: {
@@ -32,7 +38,10 @@ const props = defineProps({
     default: null
   }
 })
-defineEmits(['reset-evaluator'])
+
+const contextStore = useContextStore()
+
+defineEmits(['reset-evaluator', 'open-settings'])
 </script>
 
 <style scoped>
@@ -69,6 +78,30 @@ defineEmits(['reset-evaluator'])
   font-size: 0.9rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.settings-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
 .evaluator-info {
   text-align: center;
   display: flex;
@@ -102,6 +135,11 @@ defineEmits(['reset-evaluator'])
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
   
   .evaluator-info {
