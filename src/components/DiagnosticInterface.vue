@@ -168,7 +168,7 @@ const props = defineProps({
     }
 });
 
-defineEmits(['section-changed', 'response-changed', 'show-results', 'reset-evaluator']);
+const $emit = defineEmits(['section-changed', 'response-changed', 'show-results', 'reset-evaluator']);
 
 const maturityLevels = MATURITY_LEVELS;
 const contextStore = useContextStore();
@@ -178,7 +178,7 @@ const isComplete = computed(() => {
 });
 
 const handleResponseChange = (questionId, value) => {
-  this.$emit('response-changed', questionId, value)
+  $emit('response-changed', questionId, value)
 }
 
 const getSectionScore = (sectionIndex) => {

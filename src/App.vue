@@ -69,7 +69,7 @@
   import ResultsDisplay from '@/components/ResultsDisplay.vue'
   import ContextSettingsModal from '@/components/ContextSettingsModal.vue'
   import { useContextStore } from '@/stores/context'
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { computed, onMounted, ref, watch, nextTick } from 'vue'
 
   const sections = SECTIONS;
   const selectedEvaluator = ref(null);
@@ -170,6 +170,13 @@
     console.log('Évaluateur:', selectedEvaluator.value);
     showResults.value = true;
   }
+
+  // Watcher pour scroll automatique lors des changements de vue
+  watch([selectedEvaluator, showResults, currentSection], () => {
+    nextTick(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+  })
 
   onMounted(() => {
     // Auto-chargement si session en cours
