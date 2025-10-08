@@ -1,7 +1,7 @@
 <template>
   <div class="okrs-section">
     <div class="okrs-header">
-      <h3>🎯 OKRs Sécuritaires Générés pour KOALOO</h3>
+      <h3>OKRs Sécuritaires Générés pour KOALOO</h3>
       <p class="okrs-subtitle">
         Basés sur votre niveau {{ okrs.metadata.maturityName }} et l'objectif business :
         "{{ okrs.metadata.businessObjective }}"
@@ -10,7 +10,7 @@
 
     <!-- Analyse de risque business -->
     <div class="risk-analysis">
-      <h4>⚠️ Analyse des Risques Business</h4>
+      <h4>Analyse des Risques Business</h4>
       <div class="risks-grid">
         <div 
           v-for="risk in okrs.metadata.riskAnalysis" 
@@ -30,12 +30,12 @@
 
     <!-- Cascade OKRs -->
     <div class="okrs-cascade">
-      <h4>📊 Cascade OKRs selon John Doerr</h4>
+      <h4>Cascade OKRs selon John Doerr</h4>
       
       <!-- Top Management -->
       <div class="okr-level top-level">
         <div class="level-header">
-          <span class="level-icon">👔</span>
+          <!-- <span class="level-icon">👔</span> -->
           <h5>{{ okrs.cascade.topManagement.role }}</h5>
         </div>
         <div class="okr-content">
@@ -61,7 +61,7 @@
       <!-- CTO -->
       <div class="okr-level cto-level">
         <div class="level-header">
-          <span class="level-icon">💻</span>
+          <!-- <span class="level-icon">💻</span> -->
           <h5>{{ okrs.cascade.cto.role }}</h5>
         </div>
         <div class="okr-content">
@@ -95,7 +95,7 @@
           <!-- Lead Dev -->
           <div class="okr-level dev-level">
             <div class="level-header">
-              <span class="level-icon">👨‍💻</span>
+              <!-- <span class="level-icon">👨‍💻</span> -->
               <h5>{{ okrs.cascade.leadDev.role }}</h5>
             </div>
             <div class="okr-content">
@@ -115,7 +115,7 @@
           <!-- Security Manager -->
           <div class="okr-level security-level">
             <div class="level-header">
-              <span class="level-icon">🛡️</span>
+              <!-- <span class="level-icon">🛡️</span> -->
               <h5>{{ okrs.cascade.securityManager.role }}</h5>
             </div>
             <div class="okr-content">
@@ -135,7 +135,7 @@
           <!-- DevOps -->
           <div class="okr-level devops-level">
             <div class="level-header">
-              <span class="level-icon">💻</span>
+              <!-- <span class="level-icon">💻</span> -->
               <h5>{{ okrs.cascade.devOps.role }}</h5>
             </div>
             <div class="okr-content">
@@ -157,7 +157,7 @@
 
     <!-- Mesures techniques dérivées -->
     <div class="technical-measures" v-if="technicalMeasures.length > 0">
-      <h4>🔧 Mesures Techniques Dérivées</h4>
+      <h4>Mesures Techniques Dérivées</h4>
       <p class="measures-subtitle">
         Comment les Key Results du CTO se transforment en actions concrètes
       </p>
@@ -196,13 +196,13 @@
     <!-- Actions OKRs -->
     <div class="okrs-actions">
       <button @click="exportOKRs" class="action-btn primary">
-        📄 Exporter OKRs
+        Exporter OKRs
       </button>
       <button @click="scheduleOKRWorkshop" class="action-btn success">
-        🎯 Programmer atelier OKRs
+        Programmer atelier OKRs
       </button>
       <button @click="setupCFR" class="action-btn secondary">
-        📊 Configurer CFR
+        Configurer CFR
       </button>
     </div>
   </div>

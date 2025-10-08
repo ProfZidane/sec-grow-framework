@@ -1,6 +1,21 @@
-# sec-grow-app
+# SEC-GROW - Framework d'Évaluation de Maturité Cybersécurité
 
-This template should help get you started developing with Vue 3 in Vite.
+## Description
+
+SEC-GROW est un outil d'évaluation de la maturité cybersécurité spécialement conçu pour les startups en croissance. Il permet d'évaluer une organisation selon 4 piliers principaux et de déterminer son niveau de maturité sécuritaire.
+
+### Piliers d'Évaluation
+- **Gouvernance** - Politique, budget, responsabilités
+- **Technique** - Infrastructure, authentification, monitoring  
+- **Processus** - Gestion incidents, conformité, tests
+- **Culture** - Leadership, collaboration, formation
+
+### Niveaux de Maturité
+- **Niveau 0** - Ad Hoc (0-16 pts)
+- **Niveau 1** - Bronze (17-35 pts)
+- **Niveau 2** - Silver (36-55 pts)
+- **Niveau 3** - Gold (56-70 pts)
+- **Niveau 4** - Platinum (71-80 pts)
 
 ## Recommended IDE Setup
 

@@ -4,8 +4,8 @@
       <h2>Qui effectue cette évaluation ?</h2>
       <p>Diagnostic SEC-GROW - Semaine 3 du planning</p>
       <div class="koaloo-context">
-        <span class="context-badge">🏢 KOALOO</span>
-        <span class="context-badge">💰 Fintech ESG</span>
+        <span class="context-badge">KOALOO</span>
+        <span class="context-badge">Fintech ESG</span>
         <span class="context-badge">👥 4 ops + 5 board</span>
       </div>
     </div>
@@ -17,8 +17,8 @@
         @click="selectEvaluator(role)"
         class="evaluator-card"
       >
-        <div class="evaluator-emoji">{{ role.emoji }}</div>
-        <h3>{{ role.name }}</h3>
+        <!-- <div class="evaluator-emoji">{{ role.emoji }}</div> -->
+        <h2>{{ role.name }}</h2>
         <p>{{ role.description }}</p>
         <div class="card-footer">
           <span class="select-text">Sélectionner →</span>
@@ -28,7 +28,7 @@
     
     <div class="selection-info">
       <div class="info-box">
-        <h4>ℹ️ Information importante</h4>
+        <h4>Information importante</h4>
         <p>L'évaluation prend environ <strong>30 minutes</strong>. Vous pouvez la mettre en pause et reprendre plus tard.</p>
         <p>Pour un diagnostic optimal, nous recommandons que le <strong>CEO et le CTO</strong> fassent chacun leur évaluation.</p>
       </div>
@@ -36,25 +36,15 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { EVALUATOR_ROLES } from '@/data/questions'
 
-export default {
-  name: 'EvaluatorSelector',
-  
-  data() {
-    return {
-      evaluatorRoles: EVALUATOR_ROLES
-    }
-  },
-  
-  emits: ['evaluator-selected'],
-  
-  methods: {
-    selectEvaluator(role) {
-      this.$emit('evaluator-selected', role)
-    }
-  }
+const evaluatorRoles = EVALUATOR_ROLES;
+const emit = defineEmits(['evaluator-selected']);
+
+
+const selectEvaluator = (role) => {
+      emit('evaluator-selected', role);
 }
 </script>
 
@@ -112,7 +102,7 @@ export default {
   padding: 2.5rem 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-align: center;
+  text-align: left;
   position: relative;
   overflow: hidden;
 }
@@ -148,7 +138,7 @@ export default {
   transform: scale(1.1);
 }
 
-.evaluator-card h3 {
+.evaluator-card h2 {
   font-size: 1.4rem;
   margin-bottom: 0.75rem;
   color: var(--gray-900);
