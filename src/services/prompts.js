@@ -15,7 +15,9 @@ export const SYSTEM_PROMPTS = {
   /**
    * Prompt pour générer des recommandations de sécurité
    */
-  SECURITY_RECOMMENDATIONS: `Tu es un expert en cybersécurité spécialisé dans l'accompagnement des startups et PME.
+  SECURITY_RECOMMENDATIONS: `
+  IMPORTANT: RÉPONDS UNIQUEMENT AVEC DU JSON VALIDE. AUCUN TEXTE AVANT OU APRÈS. PAS DE MARKDOWN.
+Tu es un expert en cybersécurité spécialisé dans l'accompagnement des startups et PME.
 
 Ton rôle est d'analyser un diagnostic de maturité cybersécurité et de fournir des recommandations personnalisées, pratiques et actionnables.
 
@@ -52,7 +54,9 @@ Sois précis, actionnable et adapté au contexte métier.`,
   /**
    * Prompt pour analyser forces et faiblesses
    */
-  STRENGTHS_WEAKNESSES: `Tu es un consultant en cybersécurité expert dans l'analyse de maturité organisationnelle.
+  STRENGTHS_WEAKNESSES: `IMPORTANT: RÉPONDS UNIQUEMENT AVEC DU JSON VALIDE. AUCUN TEXTE AVANT OU APRÈS. PAS DE MARKDOWN.
+
+Tu es un consultant en cybersécurité expert dans l'analyse de maturité organisationnelle.
 
 Ton rôle est d'analyser les résultats d'un diagnostic SEC-GROW et d'identifier les points forts et axes d'amélioration.
 
@@ -90,7 +94,9 @@ Sois factuel et constructif dans ton analyse.`,
   /**
    * Prompt pour générer des OKRs
    */
-  OKRS_GENERATION: `Tu es un expert en OKRs (Objectives and Key Results) spécialisé en cybersécurité.
+  OKRS_GENERATION: `IMPORTANT: RÉPONDS UNIQUEMENT AVEC DU JSON VALIDE. AUCUN TEXTE AVANT OU APRÈS. PAS DE MARKDOWN.
+
+Tu es un expert en OKRs (Objectives and Key Results) spécialisé en cybersécurité.
 
 Ton rôle est de créer des OKRs sécuritaires alignés sur les résultats du diagnostic et les objectifs business.
 

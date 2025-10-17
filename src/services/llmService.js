@@ -24,6 +24,61 @@ import { buildSecurityRecommendationsPrompt, buildStrengthsWeaknessesPrompt, bui
  */
 
 /**
+ * Génère une clé de cache basée sur les données du diagnostic
+ * @function generateCacheKey
+ * @param {DiagnosticData} diagnosticData - Données du diagnostic
+ * @returns {string} Clé de cache unique
+ */
+const generateCacheKey = (diagnosticData) => {
+  const { responses, context, evaluator } = diagnosticData
+  const dataString = JSON.stringify({ responses, context: context.companyName, evaluator: evaluator.name })
+  return `llm-analysis-${btoa(dataString).slice(0, 16)}`
+}
+
+/**
+ * Charge les résultats depuis le cache localStorage
+ * @function loadFromCache
+ * @param {string} cacheKey - Clé de cache
+ * @returns {Object|null} Résultats mis en cache ou null
+ */
+const loadFromCache = (cacheKey) => {
+  try {
+    const cached = localStorage.getItem(cacheKey)
+    if (cached) {
+      const data = JSON.parse(cached)
+      // Vérifier si le cache n'est pas trop ancien (24h)
+      const cacheAge = Date.now() - data.timestamp
+      if (cacheAge < 24 * 60 * 60 * 1000) {
+        console.log('Résultats LLM chargés depuis le cache')
+        return data.results
+      }
+    }
+  } catch (error) {
+    console.error('Erreur chargement cache LLM:', error)
+  }
+  return null
+}
+
+/**
+ * Sauvegarde les résultats dans le cache localStorage
+ * @function saveToCache
+ * @param {string} cacheKey - Clé de cache
+ * @param {Object} results - Résultats à sauvegarder
+ */
+const saveToCache = (cacheKey, results) => {
+  try {
+    const cacheData = {
+      results,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(cacheKey, JSON.stringify(cacheData))
+    console.log('Résultats LLM sauvegardés en cache')
+  } catch (error) {
+    console.error('Erreur sauvegarde cache LLM:', error)
+  }
+}
+
+/**
  * Génère une analyse complète LLM pour un diagnostic
  * @async
  * @function generateFullAnalysis
@@ -31,6 +86,14 @@ import { buildSecurityRecommendationsPrompt, buildStrengthsWeaknessesPrompt, bui
  * @returns {Promise<AnalysisResults>} Résultats de l'analyse complète
  */
 export const generateFullAnalysis = async (diagnosticData) => {
+  const cacheKey = generateCacheKey(diagnosticData)
+  
+  // Vérifier le cache d'abord
+  const cachedResults = loadFromCache(cacheKey)
+  if (cachedResults) {
+    return cachedResults
+  }
+
   const results = {
     recommendations: null,
     analysis: null,
@@ -49,6 +112,10 @@ export const generateFullAnalysis = async (diagnosticData) => {
     results.okrs = await generateOKRsAnalysis(diagnosticData)
     
     console.log('Analyse LLM terminée avec succès')
+    
+    // Sauvegarder en cache
+    saveToCache(cacheKey, results)
+    
     return results
 
   } catch (error) {

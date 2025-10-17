@@ -43,6 +43,8 @@
           :selected-evaluator="selectedEvaluator"
           :responses="responses"
           :sections="sections"
+          :llm-results="llmResults"
+          :llm-loading="llmLoading"
           @restart="restart"
           @back-to-diagnostic="showResults = false"
         />
@@ -69,6 +71,7 @@
   import ResultsDisplay from '@/components/ResultsDisplay.vue'
   import ContextSettingsModal from '@/components/ContextSettingsModal.vue'
   import { useContextStore } from '@/stores/context'
+  import { generateFullAnalysis } from '@/services/llmService'
   import { computed, onMounted, ref, watch, nextTick } from 'vue'
 
   const sections = SECTIONS;
@@ -80,6 +83,8 @@
   const startTime = ref(null)
   const showSettingsModal = ref(false)
   const contextStore = useContextStore()
+  const llmResults = ref(null)
+  const llmLoading = ref(false)
 
 
   const answeredQuestions = computed(() => {
@@ -153,22 +158,43 @@
     showSettingsModal.value = false;
   }
 
-  const handleShowResults = () => {
+  const handleShowResults = async () => {
     console.log('=== DIAGNOSTIC TERMINÉ ===');
-    console.log('Réponses:', responses.value);
-    console.log('Contexte:', {
-      companyName: contextStore.companyName,
-      sector: contextStore.sector,
-      mission: contextStore.mission,
-      teamSize: contextStore.teamSize,
-      boardSize: contextStore.boardSize,
-      roles: contextStore.roles,
-      productType: contextStore.productType,
-      mainFeatures: contextStore.mainFeatures,
-      dataTypes: contextStore.dataTypes
-    });
-    console.log('Évaluateur:', selectedEvaluator.value);
+    
+    const diagnosticData = {
+      responses: responses.value,
+      context: {
+        companyName: contextStore.companyName,
+        sector: contextStore.sector,
+        mission: contextStore.mission,
+        teamSize: contextStore.teamSize,
+        boardSize: contextStore.boardSize,
+        roles: contextStore.roles,
+        productType: contextStore.productType,
+        mainFeatures: contextStore.mainFeatures,
+        dataTypes: contextStore.dataTypes
+      },
+      evaluator: selectedEvaluator.value,
+      sections: sections
+    };
+    
+    console.log('Données diagnostic:', diagnosticData);
+    
+    // Afficher les résultats immédiatement
     showResults.value = true;
+    
+    // Générer l'analyse LLM en arrière-plan
+    llmLoading.value = true;
+    try {
+      console.log('Génération analyse LLM...');
+      llmResults.value = await generateFullAnalysis(diagnosticData);
+      console.log('Analyse LLM terminée:', llmResults.value);
+    } catch (error) {
+      console.error('Erreur analyse LLM:', error);
+      llmResults.value = { errors: [error.message] };
+    } finally {
+      llmLoading.value = false;
+    }
   }
 
   // Watcher pour scroll automatique lors des changements de vue

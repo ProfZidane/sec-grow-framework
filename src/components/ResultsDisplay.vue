@@ -101,7 +101,11 @@
       <div class="analysis-section">
         <div class="strengths-weaknesses">
           <div class="strengths">
-            <h3>Points forts</h3>
+            <h3>
+              <span v-if="llmLoading">Analyse des points forts...</span>
+              <span v-else-if="llmResults?.analysis">Points forts (IA)</span>
+              <span v-else>Points forts</span>
+            </h3>
             <div class="points-list">
               <div 
                 v-for="strength in getStrengths()" 
@@ -118,7 +122,11 @@
           </div>
           
           <div class="weaknesses">
-            <h3>Axes d'amélioration</h3>
+            <h3>
+              <span v-if="llmLoading">Analyse des faiblesses...</span>
+              <span v-else-if="llmResults?.analysis">Axes d'amélioration (IA)</span>
+              <span v-else>Axes d'amélioration</span>
+            </h3>
             <div class="points-list">
               <div 
                 v-for="weakness in getWeaknesses()" 
@@ -136,11 +144,17 @@
         </div>
       </div>
 
-      <!-- Recommandations KOALOO -->
+      <!-- Recommandations IA -->
       <div class="recommendations">
-        <h3>Recommandations prioritaires pour KOALOO</h3>
+        <h3>
+          <span v-if="llmLoading">Génération des recommandations IA...</span>
+          <span v-else-if="llmResults?.recommendations">Recommandations IA personnalisées</span>
+          <span v-else>Recommandations prioritaires pour KOALOO</span>
+        </h3>
         <p class="recommendations-intro">
-          Basées sur votre profil de fintech ESG et les résultats du diagnostic
+          <span v-if="llmLoading">Analyse en cours par intelligence artificielle...</span>
+          <span v-else-if="llmResults?.recommendations">Générées par IA basées sur votre contexte et diagnostic</span>
+          <span v-else>Basées sur votre profil de fintech ESG et les résultats du diagnostic</span>
         </p>
         
         <div class="recommendations-list">
@@ -194,11 +208,43 @@
         </div>
       </div>
 
-      <!-- OKRs Sécuritaires Générés -->;
-      <OkrsDisplay 
-        :okrs="generatedOKRs"
-        :technical-measures="technicalMeasures"
-      />;
+      <!-- OKRs Sécuritaires Générés -->
+      <div class="okrs-section">
+        <h3>
+          <span v-if="llmLoading">Génération des OKRs IA...</span>
+          <span v-else-if="llmResults?.okrs">OKRs personnalisés (IA)</span>
+          <span v-else>OKRs sécuritaires générés</span>
+        </h3>
+        
+        <div v-if="llmResults?.okrs?.okrs" class="okrs-list">
+          <div 
+            v-for="okr in llmResults.okrs.okrs" 
+            :key="okr.objective"
+            class="okr-item"
+          >
+            <div class="okr-header">
+              <h4>{{ okr.objective }}</h4>
+              <span class="okr-pillar">{{ okr.pillar }}</span>
+            </div>
+            <p class="okr-rationale">{{ okr.rationale }}</p>
+            <div class="key-results">
+              <h5>Key Results:</h5>
+              <ul>
+                <li v-for="kr in okr.key_results" :key="kr.description">
+                  <strong>{{ kr.description }}</strong> - 
+                  Cible: {{ kr.target }} ({{ kr.metric }})
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <OkrsDisplay 
+          v-else
+          :okrs="generatedOKRs"
+          :technical-measures="technicalMeasures"
+        />
+      </div>
 
       <!-- Actions -->
       <div class="actions">
@@ -220,159 +266,188 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { MATURITY_LEVELS } from '@/data/questions'
-import { OKRGenerator } from '@/utils/okrGenerator'
-import OkrsDisplay from './OKRsDisplay.vue'
+  import { computed } from 'vue'
+  import { MATURITY_LEVELS } from '@/data/questions'
+  import { OKRGenerator } from '@/utils/okrGenerator'
+  import OkrsDisplay from './OKRsDisplay.vue'
 
-const props = defineProps({
-  selectedEvaluator: {
-    type: Object,
-    required: true
-  },
-  responses: {
-    type: Object,
-    required: true
-  },
-  sections: {
-    type: Array,
-    required: true
-  }
-})
-
-const emit = defineEmits(['restart', 'back-to-diagnostic'])
-
-const maturityLevels = MATURITY_LEVELS
-
-const getSectionScore = (sectionIndex) => {
-  const section = props.sections[sectionIndex]
-  let score = 0
-  section.questions.forEach(question => {
-    if (props.responses[question.id] !== undefined) {
-      score += props.responses[question.id]
+  /**
+   * TODO Reviews 
+   * Magic numbers : format it (80 total score, 60 rayon circle, etc...)
+   * Duplication logic
+   */
+  const props = defineProps({
+    selectedEvaluator: {
+      type: Object,
+      required: true
+    },
+    responses: {
+      type: Object,
+      required: true
+    },
+    sections: {
+      type: Array,
+      required: true
+    },
+    llmResults: {
+      type: Object,
+      required: false
+    },
+    llmLoading: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   })
-  return score
-}
 
-const getSectionMaturity = (sectionIndex) => {
-  const score = getSectionScore(sectionIndex)
-  if (score <= 4) return maturityLevels[0]
-  if (score <= 9) return maturityLevels[1]
-  if (score <= 14) return maturityLevels[2]
-  if (score <= 17) return maturityLevels[3]
-  return maturityLevels[4]
-}
+  const emit = defineEmits(['restart', 'back-to-diagnostic'])
 
-const globalScore = computed(() => {
-  return props.sections.reduce((total, section, index) => {
-    return total + getSectionScore(index)
-  }, 0)
-})
+  const maturityLevels = MATURITY_LEVELS
 
-const globalMaturityLevel = computed(() => {
-  const score = globalScore.value
-  if (score <= 16) return 0
-  if (score <= 35) return 1
-  if (score <= 55) return 2
-  if (score <= 70) return 3
-  return 4
-})
-
-const globalMaturity = computed(() => {
-  return maturityLevels[globalMaturityLevel.value]
-})
-
-const circumference = computed(() => {
-  return 2 * Math.PI * 60
-})
-
-const strokeDashoffset = computed(() => {
-  const progress = globalScore.value / 80
-  return circumference.value - (progress * circumference.value)
-})
-
-const koalooRecommendations = computed(() => {
-  const recs = []
-  
-  if (globalMaturityLevel.value === 0) {
-    recs.push({
-      priority: 1,
-      title: "Sécurisation urgente des données ESG",
-      description: "Mise en place d'un chiffrement pour protéger les données sensibles des clients",
-      context: "Critique pour la conformité fintech et la confiance clients",
-      impact: "Réduction immédiate des risques de violation de données"
+  const getSectionScore = (sectionIndex) => {
+    const section = props.sections[sectionIndex];    
+    let score = 0
+    section.questions.forEach(question => {
+      if (props.responses[question.id] !== undefined) {
+        score += props.responses[question.id]
+      }
     })
+    return score
   }
-  
-  if (getSectionScore(0) < 10) {
-    recs.push({
-      priority: 2,
-      title: "Formalisation politique sécurité fintech",
-      description: "Créer une politique adaptée aux exigences réglementaires du secteur financier",
-      context: "Essentiel pour les audits et certifications futures",
-      impact: "Facilitation des levées de fonds et partenariats corporates"
-    })
+
+  const getSectionMaturity = (sectionIndex) => {
+    const score = getSectionScore(sectionIndex)
+    if (score <= 4) return maturityLevels[0]
+    if (score <= 9) return maturityLevels[1]
+    if (score <= 14) return maturityLevels[2]
+    if (score <= 17) return maturityLevels[3]
+    return maturityLevels[4]
   }
-  
-  if (getSectionScore(1) < 10) {
-    recs.push({
-      priority: 3,
-      title: "Sécurisation API et intégrations SaaS",
-      description: "Renforcer la sécurité de votre plateforme de tracking ESG",
-      context: "Protection des connexions avec les systèmes clients",
-      impact: "Amélioration de la confiance client et réduction des incidents"
-    })
-  }
-  
-  return recs.slice(0, 3)
-})
 
-const generatedOKRs = computed(() => {
-  const generator = new OKRGenerator(props.responses, props.sections, props.selectedEvaluator)
-  return generator.generateOKRs()
-})
+  const globalScore = computed(() => {
+    return props.sections.reduce((total, section, index) => {
+      return total + getSectionScore(index)
+    }, 0)
+  })
 
-const technicalMeasures = computed(() => {
-  const generator = new OKRGenerator(props.responses, props.sections, props.selectedEvaluator)
-  return generator.generateTechnicalMeasures()
-})
+  const globalMaturityLevel = computed(() => {
+    const score = globalScore.value
+    if (score <= 16) return 0
+    if (score <= 35) return 1
+    if (score <= 55) return 2
+    if (score <= 70) return 3
+    return 4
+  })
 
-const getScoreInterpretation = () => {
-  const level = globalMaturityLevel.value
-  const interpretations = {
-    0: "KOALOO se situe au niveau initial. Il est urgent de mettre en place les bases de la sécurité pour protéger votre activité fintech.",
-    1: "KOALOO a établi quelques bases sécuritaires. L'objectif est maintenant de structurer et d'organiser ces pratiques.",
-    2: "KOALOO dispose d'une sécurité bien organisée. L'étape suivante consiste à intégrer la sécurité dans tous les processus produit.",
-    3: "KOALOO a une sécurité intégrée exemplaire. Vous pouvez maintenant viser l'excellence et faire de la sécurité un avantage compétitif.",
-    4: "KOALOO atteint l'excellence en sécurité. Vous êtes une référence et pouvez influencer positivement tout l'écosystème fintech ESG."
-  }
-  return interpretations[level]
-}
+  const globalMaturity = computed(() => {
+    return maturityLevels[globalMaturityLevel.value]
+  })
 
-const getStrengths = () => {
-  const strengths = []
-  props.sections.forEach((section, index) => {
-    const score = getSectionScore(index)
-    if (score >= 15) {
-      strengths.push({
-        title: section.title,
-        description: `Excellent niveau avec ${score}/20 points. Ce pilier est une force de KOALOO.`
+  const circumference = computed(() => {
+    return 2 * Math.PI * 60
+  })
+
+  const strokeDashoffset = computed(() => {
+    const progress = globalScore.value / 80
+    return circumference.value - (progress * circumference.value)
+  })
+
+  const koalooRecommendations = computed(() => {
+    if (props.llmResults?.recommendations?.recommendations) {
+      return props.llmResults.recommendations.recommendations
+    }
+    
+    // Fallback statique si pas de résultats LLM
+    const recs = []
+    
+    if (globalMaturityLevel.value === 0) {
+      recs.push({
+        priority: 1,
+        title: "Sécurisation urgente des données ESG",
+        description: "Mise en place d'un chiffrement pour protéger les données sensibles des clients",
+        context: "Critique pour la conformité fintech et la confiance clients",
+        impact: "Réduction immédiate des risques de violation de données"
       })
     }
+    
+    if (getSectionScore(0) < 10) {
+      recs.push({
+        priority: 2,
+        title: "Formalisation politique sécurité fintech",
+        description: "Créer une politique adaptée aux exigences réglementaires du secteur financier",
+        context: "Essentiel pour les audits et certifications futures",
+        impact: "Facilitation des levées de fonds et partenariats corporates"
+      })
+    }
+    
+    if (getSectionScore(1) < 10) {
+      recs.push({
+        priority: 3,
+        title: "Sécurisation API et intégrations SaaS",
+        description: "Renforcer la sécurité de votre plateforme de tracking ESG",
+        context: "Protection des connexions avec les systèmes clients",
+        impact: "Amélioration de la confiance client et réduction des incidents"
+      })
+    }
+    
+    return recs.slice(0, 3)
   })
-  
-  if (strengths.length === 0 && globalScore.value > 40) {
-    strengths.push({
-      title: "Démarche structurée",
-      description: "KOALOO montre une approche cohérente de la sécurité sur l'ensemble des piliers."
-    })
-  }
-  
-  return strengths.slice(0, 3)
-}
 
-const getWeaknesses = () => {
+  const generatedOKRs = computed(() => {
+    const generator = new OKRGenerator(props.responses, props.sections, props.selectedEvaluator)
+    return generator.generateOKRs()
+  })
+
+  const technicalMeasures = computed(() => {
+    const generator = new OKRGenerator(props.responses, props.sections, props.selectedEvaluator)
+    return generator.generateTechnicalMeasures()
+  })
+
+  const getScoreInterpretation = () => {
+    const level = globalMaturityLevel.value
+    const interpretations = {
+      0: "KOALOO se situe au niveau initial. Il est urgent de mettre en place les bases de la sécurité pour protéger votre activité fintech.",
+      1: "KOALOO a établi quelques bases sécuritaires. L'objectif est maintenant de structurer et d'organiser ces pratiques.",
+      2: "KOALOO dispose d'une sécurité bien organisée. L'étape suivante consiste à intégrer la sécurité dans tous les processus produit.",
+      3: "KOALOO a une sécurité intégrée exemplaire. Vous pouvez maintenant viser l'excellence et faire de la sécurité un avantage compétitif.",
+      4: "KOALOO atteint l'excellence en sécurité. Vous êtes une référence et pouvez influencer positivement tout l'écosystème fintech ESG."
+    }
+    return interpretations[level]
+  }
+
+  const getStrengths = () => {
+    if (props.llmResults?.analysis?.strengths) {
+      return props.llmResults.analysis.strengths
+    }
+    
+    // Fallback statique si pas de résultats LLM
+    const strengths = []
+    props.sections.forEach((section, index) => {
+      const score = getSectionScore(index)
+      if (score >= 15) {
+        strengths.push({
+          title: section.title,
+          description: `Excellent niveau avec ${score}/20 points. Ce pilier est une force de KOALOO.`
+        })
+      }
+    })
+    
+    if (strengths.length === 0 && globalScore.value > 40) {
+      strengths.push({
+        title: "Démarche structurée",
+        description: "KOALOO montre une approche cohérente de la sécurité sur l'ensemble des piliers."
+      })
+    }
+    
+    return strengths.slice(0, 3)
+  }
+
+  const getWeaknesses = () => {
+    if (props.llmResults?.analysis?.weaknesses) {
+      return props.llmResults.analysis.weaknesses
+    }
+    
+    // Fallback statique si pas de résultats LLM
     const weaknesses = []
     props.sections.forEach((section, index) => {
       const score = getSectionScore(index)
@@ -387,41 +462,41 @@ const getWeaknesses = () => {
     return weaknesses.slice(0, 3)
   }
 
-const exportResults = () => {
-  const results = {
-    metadata: {
-      company: 'KOALOO',
-      evaluator: props.selectedEvaluator.name,
-      date: new Date().toLocaleDateString('fr-FR'),
-      timestamp: new Date().toISOString()
-    },
-    scores: {
-      global: globalScore.value,
-      maturity: globalMaturity.value.name,
-      sections: props.sections.map((section, index) => ({
-        title: section.title,
-        score: getSectionScore(index),
-        maturity: getSectionMaturity(index).name
-      }))
-    },
-    analysis: {
-      strengths: getStrengths(),
-      weaknesses: getWeaknesses(),
-      recommendations: koalooRecommendations.value
-    },
-    okrs: generatedOKRs.value,
-    technicalMeasures: technicalMeasures.value,
-    responses: props.responses
+  const exportResults = () => {
+    const results = {
+      metadata: {
+        company: 'KOALOO',
+        evaluator: props.selectedEvaluator.name,
+        date: new Date().toLocaleDateString('fr-FR'),
+        timestamp: new Date().toISOString()
+      },
+      scores: {
+        global: globalScore.value,
+        maturity: globalMaturity.value.name,
+        sections: props.sections.map((section, index) => ({
+          title: section.title,
+          score: getSectionScore(index),
+          maturity: getSectionMaturity(index).name
+        }))
+      },
+      analysis: {
+        strengths: getStrengths(),
+        weaknesses: getWeaknesses(),
+        recommendations: koalooRecommendations.value
+      },
+      okrs: generatedOKRs.value,
+      technicalMeasures: technicalMeasures.value,
+      responses: props.responses
+    }
+    
+    const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `SEC-GROW-KOALOO-${props.selectedEvaluator.name}-${new Date().toISOString().split('T')[0]}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }
-  
-  const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `SEC-GROW-KOALOO-${props.selectedEvaluator.name}-${new Date().toISOString().split('T')[0]}.json`
-  a.click()
-  URL.revokeObjectURL(url)
-}
 
   const planOKRSession = () => {
       alert(`🎯 Session OKRs planifiée !
@@ -461,7 +536,6 @@ const exportResults = () => {
 
 <style scoped>
 .results-container {
-  max-width: 1000px;
   margin: 0 auto;
   background: white;
   border-radius: 16px;
@@ -929,8 +1003,93 @@ const exportResults = () => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+.okrs-section {
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.okrs-section h3 {
+  margin-bottom: 1.5rem;
+  color: var(--gray-900);
+}
+
+.okrs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.okr-item {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #BAE6FD;
+}
+
+.okr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.okr-header h4 {
+  color: var(--gray-900);
+  font-weight: 600;
+  margin: 0;
+}
+
+.okr-pillar {
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.okr-rationale {
+  color: var(--gray-600);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.key-results h5 {
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.key-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.key-results li {
+  padding: 0.5rem 0;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.key-results li:last-child {
+  border-bottom: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .okr-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
   .results-header {
     padding: 2rem 1rem;
   }
