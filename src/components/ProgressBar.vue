@@ -29,7 +29,7 @@ defineProps({
     type: Number,
     required: true
   }
-})
+});
 </script>
 
 <style scoped>
