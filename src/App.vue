@@ -178,7 +178,7 @@
       sections: sections
     };
     
-    console.log('Données diagnostic:', diagnosticData);
+    // console.log('Données diagnostic:', diagnosticData);
     
     // Afficher les résultats immédiatement
     showResults.value = true;
