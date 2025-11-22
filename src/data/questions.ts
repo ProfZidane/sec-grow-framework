@@ -9,7 +9,7 @@ export const SECTIONS = [
       {
         id: 'pol_sec',
         text: 'Politique de sécurité',
-        help: 'Pour KOALOO (fintech ESG), une politique claire est essentielle pour la conformité réglementaire',
+        help: 'Une politique claire est essentielle pour la conformité réglementaire',
         options: [
           'Nous n\'avons pas de politique de sécurité formalisée',
           'Nous avons quelques règles écrites mais non structurées', 
@@ -21,7 +21,7 @@ export const SECTIONS = [
       {
         id: 'resp_sec',
         text: 'Responsabilité sécurité',
-        help: 'Avec 4 personnes opérationnelles, qui est responsable de la sécurité ?',
+        help: 'Qui est responsable de la sécurité dans votre organisation ?',
         options: [
           'Personne n\'est spécifiquement responsable de la sécurité',
           'Un membre de l\'équipe gère la sécurité occasionnellement',
@@ -33,7 +33,7 @@ export const SECTIONS = [
       {
         id: 'budget_sec',
         text: 'Budget sécurité',
-        help: 'Investissement sécurité pour une fintech traitant des données ESG sensibles',
+        help: 'Investissement sécurité adapté à votre secteur d\'activité',
         options: [
           'Aucun budget spécifique pour la sécurité',
           'Budget ponctuel pour des besoins spécifiques',
@@ -45,7 +45,7 @@ export const SECTIONS = [
       {
         id: 'formation',
         text: 'Sensibilisation et formation',
-        help: 'Formation essentielle pour une équipe réduite où chaque membre est critique',
+        help: 'Formation essentielle pour sensibiliser l\'équipe à la sécurité',
         options: [
           'Aucune formation ou sensibilisation à la sécurité',
           'Discussions informelles occasionnelles sur la sécurité',
@@ -57,7 +57,7 @@ export const SECTIONS = [
       {
         id: 'integration_business',
         text: 'Intégration dans les décisions business',
-        help: 'La sécurité peut devenir un avantage compétitif face aux grands corporates',
+        help: 'La sécurité peut devenir un avantage compétitif',
         options: [
           'La sécurité n\'est pas considérée dans les décisions business',
           'La sécurité est considérée après les décisions majeures',
@@ -77,7 +77,7 @@ export const SECTIONS = [
       {
         id: 'auth_access',
         text: 'Authentification et contrôle d\'accès',
-        help: 'Protéger l\'accès au SaaS de tracking ESG et aux données clients',
+        help: 'Protéger l\'accès aux systèmes et aux données clients',
         options: [
           'Mots de passe simples, parfois partagés',
           'Politique de mots de passe basique en place',
@@ -89,7 +89,7 @@ export const SECTIONS = [
       {
         id: 'vuln_mgmt',
         text: 'Gestion des vulnérabilités',
-        help: 'Maintenir la sécurité de votre plateforme SaaS face aux nouvelles menaces',
+        help: 'Maintenir la sécurité de votre plateforme face aux nouvelles menaces',
         options: [
           'Pas de processus défini pour les vulnérabilités',
           'Correction des vulnérabilités connues de manière ad hoc',
@@ -101,7 +101,7 @@ export const SECTIONS = [
       {
         id: 'code_security',
         text: 'Sécurité du code',
-        help: 'Sécuriser le développement de votre SaaS et éviter les failles',
+        help: 'Sécuriser le développement et éviter les failles',
         options: [
           'Pas d\'analyse de sécurité du code',
           'Revue de code ad hoc incluant la sécurité',
@@ -113,7 +113,7 @@ export const SECTIONS = [
       {
         id: 'data_protection',
         text: 'Protection des données',
-        help: 'Critique : protection des données ESG des clients et respect du RGPD',
+        help: 'Protection des données clients et respect du RGPD',
         options: [
           'Pas de mesures spécifiques pour protéger les données',
           'Quelques mesures basiques (backups, contrôles d\'accès)',
@@ -125,7 +125,7 @@ export const SECTIONS = [
       {
         id: 'monitoring',
         text: 'Surveillance et détection',
-        help: 'Détecter les anomalies sur votre plateforme et protéger les données clients',
+        help: 'Détecter les anomalies et protéger les données clients',
         options: [
           'Pas de surveillance ou logs minimaux',
           'Logs conservés mais peu analysés',
@@ -157,7 +157,7 @@ export const SECTIONS = [
       {
         id: 'third_party',
         text: 'Gestion des tiers et fournisseurs',
-        help: 'Important pour les intégrations de services tiers dans votre plateforme ESG',
+        help: 'Important pour les intégrations de services tiers',
         options: [
           'Pas d\'évaluation sécurité des fournisseurs',
           'Vérification ad hoc des fournisseurs critiques',
@@ -169,7 +169,7 @@ export const SECTIONS = [
       {
         id: 'compliance',
         text: 'Conformité et audits',
-        help: 'Conformité réglementaire cruciale pour une fintech',
+        help: 'Conformité réglementaire cruciale pour votre secteur',
         options: [
           'Pas de suivi de conformité spécifique',
           'Conformité vérifiée ponctuellement',
@@ -181,7 +181,7 @@ export const SECTIONS = [
       {
         id: 'business_continuity',
         text: 'Continuité d\'activité',
-        help: 'Assurer la disponibilité de votre SaaS pour vos clients corporates',
+        help: 'Assurer la disponibilité de vos services pour vos clients',
         options: [
           'Pas de plan de continuité formalisé',
           'Sauvegardes régulières mais non testées',
@@ -193,7 +193,7 @@ export const SECTIONS = [
       {
         id: 'testing',
         text: 'Tests et exercices',
-        help: 'Tests de sécurité pour valider la robustesse de votre plateforme',
+        help: 'Tests de sécurité pour valider la robustesse de vos systèmes',
         options: [
           'Pas de tests de sécurité',
           'Tests ad hoc ou lors d\'incidents',
@@ -213,7 +213,7 @@ export const SECTIONS = [
       {
         id: 'leadership_engagement',
         text: 'Engagement de la direction',
-        help: 'Implication du CEO et du board dans la sécurité',
+        help: 'Implication de la direction dans la sécurité',
         options: [
           'Peu d\'intérêt de la direction pour la sécurité',
           'Intérêt réactif (après incidents)',
@@ -225,7 +225,7 @@ export const SECTIONS = [
       {
         id: 'collaboration',
         text: 'Collaboration inter-équipes',
-        help: 'Avec 4 personnes opérationnelles, la collaboration est essentielle',
+        help: 'La collaboration inter-équipes est essentielle',
         options: [
           'La sécurité est isolée ou inexistante',
           'Consultation ponctuelle sur la sécurité',
@@ -249,7 +249,7 @@ export const SECTIONS = [
       {
         id: 'recognition',
         text: 'Recognition et incentives',
-        help: 'Valorisation des bonnes pratiques sécurité dans l\'équipe',
+        help: 'Valorisation des bonnes pratiques sécurité',
         options: [
           'Aucune reconnaissance liée à la sécurité',
           'Reconnaissance informelle des bonnes pratiques',
@@ -261,7 +261,7 @@ export const SECTIONS = [
       {
         id: 'knowledge_sharing',
         text: 'Partage de connaissances',
-        help: 'Diffusion des connaissances sécurité dans votre petite équipe',
+        help: 'Diffusion des connaissances sécurité dans l\'équipe',
         options: [
           'Pas de partage de connaissances sur la sécurité',
           'Partage ad hoc d\'informations',
