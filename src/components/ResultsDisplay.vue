@@ -112,7 +112,7 @@
                 :key="strength.title"
                 class="point-item success"
               >
-                <div class="point-icon">✅</div>
+                <div class="point-icon"></div>
                 <div class="point-content">
                   <h4>{{ strength.title }}</h4>
                   <p>{{ strength.description }}</p>
@@ -133,7 +133,7 @@
                 :key="weakness.title"
                 class="point-item warning"
               >
-                <div class="point-icon">🔧</div>
+                <div class="point-icon"></div>
                 <div class="point-content">
                   <h4>{{ weakness.title }}</h4>
                   <p>{{ weakness.description }}</p>
