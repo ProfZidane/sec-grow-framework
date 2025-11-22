@@ -180,7 +180,7 @@
         </div>
       </div>
 
-      <!-- Prochaines étapes -->
+      <!-- Prochaines étapes 
       <div class="next-steps">
         <h3>Prochaines étapes - Planning SEC-GROW</h3>
         <div class="steps-timeline">
@@ -207,7 +207,7 @@
           </div>
         </div>
       </div>
-
+      -->
       <!-- OKRs Sécuritaires Générés -->
       <div class="okrs-section">
         <h3>
@@ -246,8 +246,8 @@
 
       <!-- Actions -->
       <div class="actions">
-        <button @click="exportResults" class="action-btn primary">
-          Exporter les résultats
+        <button @click="handleExport('csv')" class="action-btn primary">
+          Export in CSV
         </button>
         <button @click="planOKRSession" class="action-btn success">
           Planifier session OKRs
@@ -264,9 +264,10 @@
 </template>
 
 <script setup>
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { MATURITY_LEVELS } from '@/data/questions'
   import { useContextStore } from '@/stores/context'
+  import { exportToCSV, exportToExcel } from '@/utils/export'
 
  
   const props = defineProps({
@@ -299,6 +300,7 @@
   const maturityLevels = MATURITY_LEVELS;
   const TOTAL_POSSIBLE_SCORE = 80;
   const RAYON_CIRCLE = 60;
+  const showExportMenu = ref(false);
 
   
   const companyName = computed(() => contextStore.companyName || 'Votre entreprise')
@@ -368,60 +370,45 @@
     return circumference.value - (progress * circumference.value)
   })
 
-  const koalooRecommendations = computed(() => {
-    return props.llmResults?.recommendations?.recommendations || []
-  })
-
-
+  const koalooRecommendations = computed(() => props.llmResults?.recommendations?.recommendations || []);
 
   const getScoreInterpretation = () => {
-    if (props.llmResults?.analysis) {
-      return "Analyse détaillée disponible ci-dessous."
-    }
+    if (props.llmResults?.analysis) return "Analyse détaillée disponible ci-dessous.";
     return "Complétez l'évaluation pour obtenir une interprétation personnalisée."
   }
 
-  const getStrengths = () => {
-    return props.llmResults?.analysis?.strengths || []
-  }
+  const getStrengths = () => props.llmResults?.analysis?.strengths || []
 
-  const getWeaknesses = () => {
-    return props.llmResults?.analysis?.weaknesses || []
-  }
+  const getWeaknesses = () => props.llmResults?.analysis?.weaknesses || []  
 
-  const exportResults = () => {
-    const results = {
-      metadata: {
-        company: companyName.value,
-        evaluator: props.selectedEvaluator.name,
-        date: new Date().toLocaleDateString('fr-FR'),
-        timestamp: new Date().toISOString()
-      },
-      scores: {
-        global: globalScore.value,
-        maturity: globalMaturity.value.name,
-        sections: props.sections.map((section, index) => ({
-          title: section.title,
-          score: getSectionScore(index),
-          maturity: getSectionMaturity(index).name
+  const handleExport = (format) => {
+    const exportData = {
+      companyName: companyName.value,
+      evaluatorName: props.selectedEvaluator.name,
+      globalScore: globalScore.value,
+      globalMaturity: globalMaturity.value.name,
+      sections: props.sections.map((section, index) => ({
+        title: section.title,
+        score: getSectionScore(index),
+        maturity: getSectionMaturity(index).name,
+        questions: section.questions.map(q => ({
+          text: q.text,
+          response: props.responses[q.id] || 0,
+          responseText: q.options[props.responses[q.id]] || 'Non répondu'
         }))
-      },
-      analysis: {
-        strengths: getStrengths(),
-        weaknesses: getWeaknesses(),
-        recommendations: koalooRecommendations.value
-      },
-      okrs: props.llmResults?.okrs || null,
-      responses: props.responses
+      })),
+      strengths: getStrengths(),
+      weaknesses: getWeaknesses(),
+      recommendations: koalooRecommendations.value,
+      okrs: props.llmResults?.okrs?.okrs || []
     }
     
-    const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `SEC-GROW-${companyName.value}-${props.selectedEvaluator.name}-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    const exportDictFormat = {
+      'csv': (data) => exportToCSV(data),
+      'excel': (data) => exportToExcel(data)
+    }
+
+    if (format in exportDictFormat) exportDictFormat[format](exportData);    
   }
 
   const planOKRSession = () => {
@@ -460,4 +447,4 @@
   }
 </script>
 
-<style scoped src="@/assets/components/results-display.css"></style>
+<style src="@/assets/components/results-display.css" scoped></style>
