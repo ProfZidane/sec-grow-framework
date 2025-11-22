@@ -6,6 +6,9 @@
 const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
+// Modèles LLM disponibles
+const MODELS = 'meta-llama/llama-4-scout-17b-16e-instruct';
+
 /**
  * @typedef {Object} GroqMessage
  * @property {'system'|'user'|'assistant'} role - Rôle du message
@@ -14,7 +17,7 @@ const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
 /**
  * @typedef {Object} GroqOptions
- * @property {string} [model='llama-3.1-70b-versatile'] - Modèle LLM à utiliser
+ * @property {string} [model=MODELS] - Modèle LLM à utiliser
  * @property {number} [temperature=0.7] - Température de génération (0-1)
  * @property {number} [maxTokens=2000] - Nombre maximum de tokens
  */
@@ -30,7 +33,7 @@ const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY
  */
 export const callGroq = async (messages, options = {}) => {
   const {
-    model = 'llama-3.1-70b-versatile',
+    model = MODELS,
     temperature = 0.7,
     maxTokens = 2000
   } = options
@@ -87,7 +90,7 @@ export const generateSecurityRecommendations = async (diagnosticData, systemProm
   ]
 
   return await callGroq(messages, {
-    model: 'llama-3.1-70b-versatile',
+    model: MODELS,
     temperature: 0.3,
     maxTokens: 3000
   })
@@ -116,7 +119,7 @@ export const analyzeStrengthsWeaknesses = async (diagnosticData, systemPrompt, u
   ]
 
   return await callGroq(messages, {
-    model: 'llama-3.1-8b-instant',
+    model: MODELS,
     temperature: 0.2,
     maxTokens: 1500
   })
@@ -145,7 +148,7 @@ export const generateOKRs = async (diagnosticData, systemPrompt, userPrompt) => 
   ]
 
   return await callGroq(messages, {
-    model: 'llama-3.1-70b-versatile',
+    model: MODELS,
     temperature: 0.4,
     maxTokens: 2500
   })

@@ -43,6 +43,8 @@
           :selected-evaluator="selectedEvaluator"
           :responses="responses"
           :sections="sections"
+          :llm-results="llmResults"
+          :llm-loading="llmLoading"
           @restart="restart"
           @back-to-diagnostic="showResults = false"
         />
@@ -69,6 +71,7 @@
   import ResultsDisplay from '@/components/ResultsDisplay.vue'
   import ContextSettingsModal from '@/components/ContextSettingsModal.vue'
   import { useContextStore } from '@/stores/context'
+  import { generateFullAnalysis } from '@/services/llmService'
   import { computed, onMounted, ref, watch, nextTick } from 'vue'
 
   const sections = SECTIONS;
@@ -80,6 +83,8 @@
   const startTime = ref(null)
   const showSettingsModal = ref(false)
   const contextStore = useContextStore()
+  const llmResults = ref(null)
+  const llmLoading = ref(false)
 
 
   const answeredQuestions = computed(() => {
@@ -153,22 +158,43 @@
     showSettingsModal.value = false;
   }
 
-  const handleShowResults = () => {
+  const handleShowResults = async () => {
     console.log('=== DIAGNOSTIC TERMINÉ ===');
-    console.log('Réponses:', responses.value);
-    console.log('Contexte:', {
-      companyName: contextStore.companyName,
-      sector: contextStore.sector,
-      mission: contextStore.mission,
-      teamSize: contextStore.teamSize,
-      boardSize: contextStore.boardSize,
-      roles: contextStore.roles,
-      productType: contextStore.productType,
-      mainFeatures: contextStore.mainFeatures,
-      dataTypes: contextStore.dataTypes
-    });
-    console.log('Évaluateur:', selectedEvaluator.value);
+    
+    const diagnosticData = {
+      responses: responses.value,
+      context: {
+        companyName: contextStore.companyName,
+        sector: contextStore.sector,
+        mission: contextStore.mission,
+        teamSize: contextStore.teamSize,
+        boardSize: contextStore.boardSize,
+        roles: contextStore.roles,
+        productType: contextStore.productType,
+        mainFeatures: contextStore.mainFeatures,
+        dataTypes: contextStore.dataTypes
+      },
+      evaluator: selectedEvaluator.value,
+      sections: sections
+    };
+    
+    // console.log('Données diagnostic:', diagnosticData);
+    
+    // Afficher les résultats immédiatement
     showResults.value = true;
+    
+    // Générer l'analyse LLM en arrière-plan
+    llmLoading.value = true;
+    try {
+      console.log('Génération analyse LLM...');
+      llmResults.value = await generateFullAnalysis(diagnosticData);
+      console.log('Analyse LLM terminée:', llmResults.value);
+    } catch (error) {
+      console.error('Erreur analyse LLM:', error);
+      llmResults.value = { errors: [error.message] };
+    } finally {
+      llmLoading.value = false;
+    }
   }
 
   // Watcher pour scroll automatique lors des changements de vue
@@ -199,59 +225,4 @@
 
 </script>
 
-<style>
-/* Variables CSS */
-:root {
-  --primary: oklch(60% 0.118 184.704);
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --purple: #8B5CF6;
-  --gray-50: #F9FAFB;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
-  --gray-300: #D1D5DB;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
-  --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
-}
-
-/* Reset et base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  color: var(--gray-900);
-  background: var(--gray-50);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.main {
-  padding: 2rem 0;
-  min-height: calc(100vh - 200px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-  
-  .main {
-    padding: 1rem 0;
-  }
-}
-</style>
+<style></style>
