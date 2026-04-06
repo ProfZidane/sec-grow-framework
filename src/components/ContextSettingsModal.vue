@@ -1,223 +1,351 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click="closeModal">
-    <div class="modal-dialog" @click.stop>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="material-icons">settings</i>
-            Configuration du Contexte
-          </h5>
-          <button type="button" class="btn-close" @click="closeModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
-        
-        <div class="modal-body">
-          <form @submit.prevent="saveSettings">
-            <!-- Informations Entreprise -->
-            <div class="form-section">
-              <h6 class="section-title">
-                <i class="material-icons">business</i>
-                Informations Entreprise
-              </h6>
-              
-              <div class="form-group">
-                <label for="companyName">Nom de l'entreprise</label>
-                <input 
-                  type="text" 
-                  id="companyName"
-                  v-model="formData.companyName"
-                  class="form-control"
-                  placeholder="Ex: KOALOO"
-                >
-              </div>
-              
-              <div class="form-group">
-                <label for="sector">Secteur d'activité</label>
-                <select id="sector" v-model="formData.sector" class="form-control">
-                  <option value="">Sélectionner un secteur</option>
-                  <option value="fintech">Fintech</option>
-                  <option value="esg">ESG/Sustainability</option>
-                  <option value="saas">SaaS</option>
-                  <option value="consulting">Conseil</option>
-                  <option value="other">Autre</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label for="mission">Mission/Objectif principal</label>
-                <textarea 
-                  id="mission"
-                  v-model="formData.mission"
-                  class="form-control"
-                  rows="3"
-                  placeholder="Ex: Améliorer le score ESG des entreprises corporates"
-                ></textarea>
-              </div>
-            </div>
+  <div class="modal-overlay" @click.self="emit('close')">
+    <div class="modal-box">
 
-            <!-- Équipe -->
-            <div class="form-section">
-              <h6 class="section-title">
-                <i class="material-icons">group</i>
-                Composition de l'équipe
-              </h6>
-              
-              <div class="form-row">
-                <div class="form-group col-md-6">
-                  <label for="teamSize">Taille de l'équipe opérationnelle</label>
-                  <input 
-                    type="number" 
-                    id="teamSize"
-                    v-model="formData.teamSize"
-                    class="form-control"
-                    min="1"
-                    placeholder="Ex: 4"
-                  >
-                </div>
-                
-                <div class="form-group col-md-6">
-                  <label for="boardSize">Nombre de membres du board</label>
-                  <input 
-                    type="number" 
-                    id="boardSize"
-                    v-model="formData.boardSize"
-                    class="form-control"
-                    min="0"
-                    placeholder="Ex: 5"
-                  >
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label for="keyRoles">Rôles clés présents</label>
-                <div class="checkbox-group">
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.roles" value="ceo">
-                    <span>CEO</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.roles" value="cto">
-                    <span>CTO</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.roles" value="data-scientist">
-                    <span>Data Scientist</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.roles" value="security-officer">
-                    <span>Security Officer</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contexte Technique -->
-            <div class="form-section">
-              <h6 class="section-title">
-                <i class="material-icons">computer</i>
-                Contexte Technique
-              </h6>
-              
-              <div class="form-group">
-                <label for="productType">Type de produit</label>
-                <select id="productType" v-model="formData.productType" class="form-control">
-                  <option value="">Sélectionner</option>
-                  <option value="saas">SaaS Platform</option>
-                  <option value="mobile-app">Application Mobile</option>
-                  <option value="web-app">Application Web</option>
-                  <option value="api">API/Service</option>
-                  <option value="other">Autre</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label for="mainFeatures">Fonctionnalités principales</label>
-                <textarea 
-                  id="mainFeatures"
-                  v-model="formData.mainFeatures"
-                  class="form-control"
-                  rows="3"
-                  placeholder="Ex: Tracking des KPIs ESG, Dashboard analytics, Reporting automatisé"
-                ></textarea>
-              </div>
-              
-              <div class="form-group">
-                <label for="dataTypes">Types de données traitées</label>
-                <div class="checkbox-group">
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.dataTypes" value="personal">
-                    <span>Données personnelles</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.dataTypes" value="financial">
-                    <span>Données financières</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.dataTypes" value="esg">
-                    <span>Données ESG</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input type="checkbox" v-model="formData.dataTypes" value="analytics">
-                    <span>Analytics/Métriques</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </form>
+      <div class="modal-head">
+        <div>
+          <span class="modal-tag">[ PARAMÈTRES ]</span>
+          <h2>Configuration du contexte</h2>
         </div>
-        
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">
-            Annuler
-          </button>
-          <button type="button" class="btn btn-primary" @click="saveSettings">
-            Sauvegarder
-          </button>
-        </div>
+        <button class="modal-close-btn" @click="emit('close')">
+          <X :size="18" />
+        </button>
       </div>
+
+      <div class="modal-body">
+
+        <!-- Entreprise -->
+        <div class="form-section">
+          <div class="section-label">
+            <Building2 :size="14" /> Entreprise
+          </div>
+
+          <div class="field">
+            <label>Nom de l'entreprise</label>
+            <input v-model="form.companyName" type="text" placeholder="Ex: KOALOO" class="field-input" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Secteur d'activité</label>
+              <select v-model="form.sector" class="field-input">
+                <option value="">Sélectionner...</option>
+                <option v-for="s in SECTORS" :key="s.id" :value="s.id">{{ s.label }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Taille</label>
+              <select v-model="form.size" class="field-input">
+                <option value="">Sélectionner...</option>
+                <option v-for="s in COMPANY_SIZES" :key="s.id" :value="s.id">{{ s.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Mission principale</label>
+            <textarea v-model="form.mission" rows="2" placeholder="Ex: Améliorer le score ESG des corporates" class="field-input"></textarea>
+          </div>
+        </div>
+
+        <!-- Zones géo -->
+        <div class="form-section">
+          <div class="section-label">
+            <Globe :size="14" /> Zones géographiques
+          </div>
+          <div class="zones-grid">
+            <button
+              v-for="z in GEO_ZONES"
+              :key="z.id"
+              type="button"
+              class="zone-btn"
+              :class="{ active: form.geoZones.includes(z.id) }"
+              @click="toggleZone(z.id)"
+            >{{ z.label }}</button>
+          </div>
+        </div>
+
+        <!-- Équipe -->
+        <div class="form-section">
+          <div class="section-label">
+            <Users :size="14" /> Équipe
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Équipe opérationnelle</label>
+              <input v-model.number="form.teamSize" type="number" min="1" placeholder="4" class="field-input" />
+            </div>
+            <div class="field">
+              <label>Membres du board</label>
+              <input v-model.number="form.boardSize" type="number" min="0" placeholder="5" class="field-input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Technique -->
+        <div class="form-section">
+          <div class="section-label">
+            <Code2 :size="14" /> Contexte technique
+          </div>
+          <div class="field">
+            <label>Type de produit</label>
+            <select v-model="form.productType" class="field-input">
+              <option value="">Sélectionner...</option>
+              <option value="saas">SaaS Platform</option>
+              <option value="mobile-app">Application Mobile</option>
+              <option value="web-app">Application Web</option>
+              <option value="api">API/Service</option>
+              <option value="other">Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Types de données traitées</label>
+            <div class="check-grid">
+              <label v-for="dt in dataTypeOptions" :key="dt.id" class="check-item">
+                <input type="checkbox" v-model="form.dataTypes" :value="dt.id" />
+                <span>{{ dt.label }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn-cancel" @click="emit('close')">Annuler</button>
+        <button class="btn-save" @click="save">
+          <Save :size="14" /> Sauvegarder
+        </button>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { X, Building2, Globe, Users, Code2, Save } from 'lucide-vue-next'
+import { useContextStore } from '@/stores/context'
+import { SECTORS, COMPANY_SIZES, GEO_ZONES } from '@/data/regulations'
 
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
-  },
-  initialData: {
-    type: Object,
-    default: () => ({})
-  }
-});
+const emit = defineEmits(['close'])
+const contextStore = useContextStore()
 
-const emit = defineEmits(['close', 'save']);
+const dataTypeOptions = [
+  { id: 'personal',  label: 'Données personnelles' },
+  { id: 'financial', label: 'Données financières' },
+  { id: 'esg',       label: 'Données ESG' },
+  { id: 'analytics', label: 'Analytics/Métriques' },
+]
 
-const formData = ref({
-  companyName: '',
-  sector: '',
-  mission: '',
-  teamSize: null,
-  boardSize: null,
-  roles: [],
-  productType: '',
-  mainFeatures: '',
-  dataTypes: []
-});
+const form = ref({
+  companyName:  contextStore.companyName  || '',
+  sector:       contextStore.sector       || '',
+  size:         contextStore.size         || '',
+  geoZones:     contextStore.geoZones     ? [...contextStore.geoZones] : [],
+  mission:      contextStore.mission      || '',
+  teamSize:     contextStore.teamSize     || null,
+  boardSize:    contextStore.boardSize    || null,
+  productType:  contextStore.productType  || '',
+  dataTypes:    contextStore.dataTypes    ? [...contextStore.dataTypes] : [],
+})
 
-const closeModal = () => emit('close');
+function toggleZone(id) {
+  const idx = form.value.geoZones.indexOf(id)
+  if (idx === -1) form.value.geoZones.push(id)
+  else form.value.geoZones.splice(idx, 1)
+}
 
-const saveSettings = () => emit('save', formData.value);
-
-watch(() => props.initialData, (newData) => {
-  if (newData) {
-    Object.assign(formData.value, newData)
-  }
-}, { immediate: true });
-
+function save() {
+  contextStore.updateContext(form.value)
+  emit('close')
+}
 </script>
 
-<style scoped src="@/assets/components/context-settings.css"></style>
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #0d1410;
+  border: 1px solid rgba(0,220,120,.2);
+  border-radius: 6px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn .2s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-12px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.4rem 1.6rem 1rem;
+  border-bottom: 1px solid rgba(0,220,120,.08);
+  flex-shrink: 0;
+}
+.modal-tag {
+  font-size: .65rem;
+  letter-spacing: .15em;
+  color: #00dc78;
+  font-weight: 700;
+  display: block;
+  margin-bottom: .3rem;
+}
+.modal-head h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #788a80;
+  cursor: pointer;
+  padding: .3rem;
+  border-radius: 3px;
+  display: flex;
+  transition: color .2s;
+}
+.modal-close-btn:hover { color: #fff; }
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.form-section { display: flex; flex-direction: column; gap: .8rem; }
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #00dc78;
+  font-weight: 700;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(0,220,120,.1);
+}
+
+.field { display: flex; flex-direction: column; gap: .35rem; }
+.field-row { display: flex; gap: .8rem; }
+.field-row .field { flex: 1; }
+
+.field label {
+  font-size: .72rem;
+  color: #788a80;
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+
+.field-input {
+  background: #141a16;
+  border: 1px solid rgba(0,220,120,.15);
+  color: #f0f2f0;
+  padding: .6rem .85rem;
+  border-radius: 3px;
+  font-size: .85rem;
+  outline: none;
+  width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+  font-family: inherit;
+  resize: vertical;
+}
+.field-input:focus {
+  border-color: #00dc78;
+  box-shadow: 0 0 0 3px rgba(0,220,120,.1);
+}
+.field-input option { background: #141a16; }
+
+.zones-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.zone-btn {
+  padding: .35rem .85rem;
+  background: #141a16;
+  border: 1px solid rgba(255,255,255,.1);
+  color: #8a9e92;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: .8rem;
+  transition: all .2s;
+}
+.zone-btn:hover  { border-color: rgba(0,220,120,.3); color: #c8d4cc; }
+.zone-btn.active { background: rgba(0,220,120,.12); border-color: #00dc78; color: #00dc78; font-weight: 600; }
+
+.check-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  color: #8a9e92;
+  cursor: pointer;
+  padding: .3rem .7rem;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 2px;
+  transition: all .2s;
+}
+.check-item:hover { border-color: rgba(0,220,120,.2); color: #c8d4cc; }
+.check-item input { accent-color: #00dc78; }
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: .8rem;
+  padding: 1rem 1.6rem;
+  border-top: 1px solid rgba(0,220,120,.08);
+  flex-shrink: 0;
+}
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.1);
+  color: #8a9e92;
+  padding: .55rem 1.2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: .85rem;
+  transition: all .2s;
+}
+.btn-cancel:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+
+.btn-save {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  background: #00dc78;
+  border: none;
+  color: #080c0a;
+  padding: .55rem 1.4rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 700;
+  transition: all .2s;
+}
+.btn-save:hover { background: #00ff8c; box-shadow: 0 0 16px rgba(0,220,120,.3); }
+
+@media (max-width: 600px) {
+  .field-row { flex-direction: column; }
+}
+</style>
