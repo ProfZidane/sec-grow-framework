@@ -4,6 +4,8 @@ export const useContextStore = defineStore('context', {
   state: () => ({
     companyName: 'KOALOO',
     sector: 'fintech',
+    size: 'startup',
+    geoZones: ['EU'],
     mission: 'Améliorer le score ESG des entreprises corporates',
     teamSize: 4,
     boardSize: 5,
@@ -46,16 +48,17 @@ export const useContextStore = defineStore('context', {
   actions: {
     // Mettre à jour tout le contexte
     updateContext(newContext) {
-      // Assigner seulement les propriétés du state, pas les getters
       this.companyName = newContext.companyName || this.companyName
-      this.sector = newContext.sector || this.sector
-      this.mission = newContext.mission || this.mission
-      this.teamSize = newContext.teamSize || this.teamSize
-      this.boardSize = newContext.boardSize || this.boardSize
-      this.roles = newContext.roles || this.roles
+      this.sector      = newContext.sector      || this.sector
+      this.size        = newContext.size        || this.size
+      this.geoZones    = newContext.geoZones    || this.geoZones
+      this.mission     = newContext.mission     || this.mission
+      this.teamSize    = newContext.teamSize    || this.teamSize
+      this.boardSize   = newContext.boardSize   || this.boardSize
+      this.roles       = newContext.roles       || this.roles
       this.productType = newContext.productType || this.productType
-      this.mainFeatures = newContext.mainFeatures || this.mainFeatures
-      this.dataTypes = newContext.dataTypes || this.dataTypes
+      this.mainFeatures= newContext.mainFeatures|| this.mainFeatures
+      this.dataTypes   = newContext.dataTypes   || this.dataTypes
       this.saveToStorage()
     },
 
@@ -69,14 +72,16 @@ export const useContextStore = defineStore('context', {
     saveToStorage() {
       const contextData = {
         companyName: this.companyName,
-        sector: this.sector,
-        mission: this.mission,
-        teamSize: this.teamSize,
-        boardSize: this.boardSize,
-        roles: this.roles,
+        sector:      this.sector,
+        size:        this.size,
+        geoZones:    this.geoZones,
+        mission:     this.mission,
+        teamSize:    this.teamSize,
+        boardSize:   this.boardSize,
+        roles:       this.roles,
         productType: this.productType,
-        mainFeatures: this.mainFeatures,
-        dataTypes: this.dataTypes
+        mainFeatures:this.mainFeatures,
+        dataTypes:   this.dataTypes
       }
       localStorage.setItem('sec-grow-context', JSON.stringify(contextData))
     },
