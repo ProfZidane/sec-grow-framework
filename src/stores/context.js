@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useContextStore = defineStore('context', {
   state: () => ({
-    companyName: 'KOALOO',
+    companyName: 'Z-TECH Industry',
     sector: 'fintech',
     size: 'startup',
     geoZones: ['EU'],
